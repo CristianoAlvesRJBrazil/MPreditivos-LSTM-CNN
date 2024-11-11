@@ -72,7 +72,7 @@ class BitcoinPredictor:
             Dropout(0.2),
             
             # Camada densa
-            Dense(50),
+            Dense(100),
             Dense(self.prediction_steps)  # Saída para múltiplos dias
         ])
         
