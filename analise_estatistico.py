@@ -14,7 +14,7 @@ print(df.head(10))
 
 # Calcula o erro relativo para cada linha
 #df['erro_relativo'] = abs(df['Predicted_Close'] - df['Real_Close']) / abs(df['Real_Close'])
-df['erro_relativo'] = abs(df['Predicted_Close'] - df['Real_Close'])
+df['erro_relativo'] = abs(df['Real'] - df['Previsto'])/ abs(df['Real'])
 
 # Exibe o resultado
 print(df[['erro_relativo']])

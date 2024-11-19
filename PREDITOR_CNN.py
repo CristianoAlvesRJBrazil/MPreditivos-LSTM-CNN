@@ -4,11 +4,11 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from sklearn.preprocessing import MinMaxScaler
 from keras.models import Sequential
-from keras.layers import LSTM, Conv1D, MaxPooling1D, Flatten, Dense, Dropout
+from keras.layers import LSTM, Conv1D, MaxPooling1D, Flatten, Dense, Dropout, Bidirectional
 from keras.callbacks import EarlyStopping
 
 class BitcoinPredictor:
-    def __init__(self, ticker='BTC-USD', start='2020-01-01', end='2024-10-01', time_step=15, prediction_steps=5, train_ratio=0.8):
+    def __init__(self, ticker='BTC-USD', start='2020-01-01', end='2024-11-01', time_step=5, prediction_steps=1, train_ratio=0.8):
         self.ticker = ticker
         self.start = start
         self.end = end
@@ -58,27 +58,27 @@ class BitcoinPredictor:
         return np.array(X), np.array(Y)
 
     def build_model(self):
-        """Cria o modelo híbrido LSTM + CNN para previsão."""
+        """Cria o modelo híbrido Bidirectional LSTM + CNN para previsão."""
         model = Sequential([
             # Camada de Convolução 1D para capturar padrões locais
-            Conv1D(128, 2, activation='relu', input_shape=(self.time_step, 1)),
+            Conv1D(256, 2, activation='relu', input_shape=(self.time_step, 1)),
             MaxPooling1D(2),
             Dropout(0.2),
             
-            # Camada LSTM para capturar dependências temporais
-            LSTM(100, return_sequences=True),
-            Dropout(0.2),
-            LSTM(100, return_sequences=False),
-            Dropout(0.2),
+            # Camadas LSTM Bidirecionais para capturar dependências temporais
+            Bidirectional(LSTM(100, return_sequences=True)),
+            Dropout(0.3),
+            Bidirectional(LSTM(100, return_sequences=False)),
+            Dropout(0.3),
             
-            # Camada densa
-            Dense(100),
+            # Camadas densas para ajustar a saída
+            Dense(100, activation='relu'),
             Dense(self.prediction_steps)  # Saída para múltiplos dias
         ])
         
         model.compile(optimizer='adam', loss='mean_squared_error')
         self.model = model
-        print("Modelo híbrido LSTM + CNN criado.")
+        print("Modelo híbrido Bidirectional LSTM + CNN criado.")
 
     def train_model(self, batch_size=1, patience=5):
         """Treina o modelo com early stopping para evitar overfitting."""
