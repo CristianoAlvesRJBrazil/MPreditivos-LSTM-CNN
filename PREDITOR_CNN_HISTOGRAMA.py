@@ -6,6 +6,11 @@ from sklearn.preprocessing import MinMaxScaler
 from keras.models import Sequential
 from keras.layers import LSTM, Conv1D, MaxPooling1D, Flatten, Dense, Dropout, Bidirectional
 from keras.callbacks import EarlyStopping
+from scipy.stats import norm
+import seaborn as sns
+import csv
+from scipy.stats import norm, mode  # Adicionando a importação da função mode
+
 
 class BitcoinPredictor:
     def __init__(self, ticker='BTC-USD', start='2020-01-01', end='2024-11-01', time_step=5, prediction_steps=1, train_ratio=0.8):
@@ -134,14 +139,86 @@ class BitcoinPredictor:
         plt.legend(loc='lower right')
         plt.show()
 
+# Execução principal
 if __name__ == "__main__":
-    btc_predictor = BitcoinPredictor()
-    df = btc_predictor.download_data()
+    best_losses = []  # Lista para armazenar os melhores valores de loss
+    n_runs = 40  # Número de execuções
     
-    if df is not None:  # Confirma se os dados foram baixados com sucesso
-        btc_predictor.preprocess_data()
-        btc_predictor.build_model()
-        btc_predictor.train_model(batch_size=32, patience=5)
-        predictions = btc_predictor.predict()
-        btc_predictor.plot_results(df, predictions)
-        btc_predictor.save_predictions_to_csv(df)
+    for run in range(n_runs):
+        print(f"Execução {run + 1}/{n_runs}")
+        btc_predictor = BitcoinPredictor()
+        df = btc_predictor.download_data()
+        
+        if df is not None:
+            btc_predictor.preprocess_data()
+            btc_predictor.build_model()
+            
+            # Configura o treinamento com early stopping
+            X_train, y_train = btc_predictor.create_dataset(btc_predictor.train_data)
+            X_train = X_train.reshape(X_train.shape[0], X_train.shape[1], 1)
+            early_stop = EarlyStopping(monitor='loss', patience=5, restore_best_weights=True, verbose=1)
+            
+            history = btc_predictor.model.fit(
+                X_train, y_train, 
+                epochs=100, 
+                batch_size=32, 
+                callbacks=[early_stop], 
+                verbose=1
+            )
+            
+            # Captura o menor valor de loss
+            best_loss = min(history.history['loss'])
+            best_losses.append(best_loss)
+            print(f"Melhor Loss da execução {run + 1}: {best_loss}")
+    
+    # Salvar os melhores loss em CSV
+    with open("best_losses_CNN.csv", "w", newline="") as file:
+        writer = csv.writer(file)
+        writer.writerow(["Execution", "Best Loss"])
+        for i, loss in enumerate(best_losses):
+            writer.writerow([i + 1, loss])
+    
+    # Estatísticas descritivas
+    mean_loss = np.mean(best_losses)
+    std_loss = np.std(best_losses)
+    min_loss = np.min(best_losses)
+    max_loss = np.max(best_losses)
+    median_loss = np.median(best_losses)
+    
+    # Calcular a moda
+    mode_result = mode(best_losses, nan_policy="omit")
+    
+    # Verificar se existe mais de uma moda e tratar
+    if isinstance(mode_result.mode, np.ndarray):
+        mode_loss = mode_result.mode[0]  # Caso seja um array, pegamos o primeiro valor
+    else:
+        mode_loss = mode_result.mode  # Caso seja um valor único, usamos diretamente
+    
+    # Salvar as estatísticas descritivas em um arquivo CSV
+    with open("loss_statistics_CNN.csv", "w", newline="") as file:
+        writer = csv.writer(file)
+        writer.writerow(["Metric", "Value"])
+        writer.writerow(["Mean", mean_loss])
+        writer.writerow(["Standard Deviation", std_loss])
+        writer.writerow(["Minimum", min_loss])
+        writer.writerow(["Maximum", max_loss])
+        writer.writerow(["Median", median_loss])
+        writer.writerow(["Mode", mode_loss])  # Salva a moda
+    
+    # Gerar o histograma com a curva normal
+    plt.figure(figsize=(10, 6))
+    sns.histplot(best_losses, bins=10, kde=False, color='skyblue', label="Frequência", stat="density", edgecolor="black")
+    
+    # Ajustar a curva normal
+    x = np.linspace(min_loss, max_loss, 100)
+    y = norm.pdf(x, mean_loss, std_loss)
+    plt.plot(x, y, color='red', label='Curva Normal')
+    
+    # Adicionar informações ao gráfico
+    plt.title("Distribuição dos Melhores Loss por Execução")
+    plt.xlabel("Loss")
+    plt.ylabel("Densidade")
+    plt.legend()
+    plt.grid(axis='y', linestyle='--', alpha=0.7)
+    plt.savefig("Melhor_MSE_Curva_Normal_CNN.png")  # Salva o gráfico
+    plt.show()

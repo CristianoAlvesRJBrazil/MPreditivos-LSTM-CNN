@@ -8,6 +8,7 @@ from keras.models import Sequential
 from keras.layers import LSTM, Dense, Dropout, Bidirectional
 from keras.callbacks import EarlyStopping
 
+
 # Classe para previsão de preços do Bitcoin
 class BitcoinPredictor:
     def __init__(self, ticker='BTC-USD', start='2020-01-01', end='2024-11-01', time_step=5, prediction_steps=1, train_ratio=0.8):
@@ -161,26 +162,54 @@ class BitcoinPredictor:
 
 # Execução principal
 if __name__ == "__main__":
-    # Cria a instância do preditor
-    btc_predictor = BitcoinPredictor()
+    best_losses = []  # Lista para armazenar os melhores valores de perda de cada execução
+    n_runs = 30  # Número de execuções
     
-    # Baixa os dados
-    df = btc_predictor.download_data()
+    for run in range(n_runs):
+        print(f"Execução {run + 1}/{n_runs}")
+        # Cria uma nova instância do preditor
+        btc_predictor = BitcoinPredictor()
+        
+        # Baixa os dados
+        df = btc_predictor.download_data()
+        
+        if df is not None:
+            btc_predictor.preprocess_data()  # Pré-processa os dados
+            btc_predictor.build_bidirectional_model()  # Cria o modelo
+            
+            # Prepara os dados de treinamento
+            X_train, y_train = btc_predictor.create_dataset(btc_predictor.train_data)
+            X_train = X_train.reshape(X_train.shape[0], X_train.shape[1], 1)
+            
+            # Configura o callback para monitorar o melhor loss
+            early_stop = EarlyStopping(monitor='loss', patience=5, restore_best_weights=True, verbose=1)
+            
+            # Treina o modelo e salva o histórico
+            history = btc_predictor.model.fit(
+                X_train, y_train, 
+                epochs=100, 
+                batch_size=32, 
+                callbacks=[early_stop], 
+                verbose=1
+            )
+            
+            # Captura o menor valor de perda registrado no histórico
+            best_loss = min(history.history['loss'])
+            best_losses.append(best_loss)
+            print(f"Melhor Loss da execução {run + 1}: {best_loss}")
     
-    if df is not None:  
-        btc_predictor.preprocess_data() # Pré-processa os dados
-        btc_predictor.build_bidirectional_model() # Cria o modelo
-        btc_predictor.train_model(batch_size=32, patience=5) # Treina o modelo
-        
-        predictions = btc_predictor.predict() # Faz previsões
-        
-        # Salvar previsões com as datas em um CSV
-        btc_predictor.save_predictions_to_csv(df, 'bitcoin_predictions_lstm.csv')
-        
-        # Faz previsão baseada em dados recentes
-        recent_data = df['Close'][-btc_predictor.time_step:].values.reshape(-1, 1)
-        predicted_price = btc_predictor.predict_new_data(recent_data)[0, 0]
-        
-        # Plota os resultados
-        btc_predictor.plot_results(df, predictions, predicted_price)
-
+    # Salvar os melhores loss em um arquivo CSV
+    with open("best_losses.csv", "w", newline="") as file:
+        writer = csv.writer(file)
+        writer.writerow(["Execution", "Best Loss"])
+        for i, loss in enumerate(best_losses):
+            writer.writerow([i + 1, loss])
+    
+    # Gerar o histograma
+    plt.hist(best_losses, bins=10, edgecolor='black', alpha=0.75)
+    plt.title("Distribuição dos Melhores Loss por Execução")
+    plt.xlabel("Loss")
+    plt.ylabel("Frequência")
+    plt.grid(axis='y', linestyle='--', alpha=0.7)
+    plt.savefig("best_losses_histogram.png")  # Salva o histograma como imagem
+    plt.show()

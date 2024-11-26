@@ -4,7 +4,7 @@ import numpy as np
 from scipy.stats import norm
 
 # Substitua 'seu_arquivo.csv' pelo nome do seu arquivo CSV
-arquivo_csv = 'bitcoin_predictions.csv'
+arquivo_csv = "bitcoin_predictions_lstm_cnn.csv"
 
 # Carrega o dataset
 df = pd.read_csv(arquivo_csv)
@@ -13,9 +13,8 @@ df = pd.read_csv(arquivo_csv)
 print(df.head(10))
 
 # Calcula o erro relativo para cada linha
-#df['erro_relativo'] = abs(df['Predicted_Close'] - df['Real_Close']) / abs(df['Real_Close'])
-
-df['erro_relativo'] = abs(df['Real'] - df['Previsto'])/ abs(df['Real'])
+#df['erro_relativo'] = abs(df['Real'] - df['Previsto'])/ abs(df['Real'])
+df['erro_relativo'] = abs(df['Real_Close'] - df['Predicted_Close']) / abs(df['Real_Close'])
 
 # Exibe o resultado
 print(df[['erro_relativo']])
