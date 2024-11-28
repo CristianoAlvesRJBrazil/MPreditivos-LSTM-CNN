@@ -166,7 +166,7 @@ class BitcoinPredictor:
 # Execução principal
 if __name__ == "__main__":
     best_losses = []  # Lista para armazenar os melhores valores de perda de cada execução
-    n_runs = 40  # Número de execuções
+    n_runs = 100  # Número de execuções
 
     for run in range(n_runs):
         print(f"Execução {run + 1}/{n_runs}")
@@ -259,7 +259,7 @@ if __name__ == "__main__":
     plt.plot(x, y, color='red', label='Curva Normal')
     
     # Adicionar informações ao gráfico
-    plt.title("Distribuição dos Melhores Loss por Execução")
+    plt.title("Distribuição dos Melhores Loss LSTM")
     plt.xlabel("Loss")
     plt.ylabel("Densidade")
     plt.legend()

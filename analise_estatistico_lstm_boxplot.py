@@ -13,13 +13,12 @@ df = pd.read_csv(arquivo_csv)
 print(df.head(10))
 
 # Calcula o erro relativo para cada linha
-#df['erro_relativo'] = abs(df['Predicted_Close'] - df['Real_Close']) / abs(df['Real_Close'])
-df['erro_relativo'] = abs(df['Real'] - df['Previsto'])/ abs(df['Real'])
+df['erro_relativo'] = abs(df['Real'] - df['Previsto']) / abs(df['Real'])
 
 # Exibe o resultado
 print(df[['erro_relativo']])
 
-# Configurações do histograma
+# Gráfico 1: Histograma com curva normal
 plt.figure(figsize=(10, 6))
 n, bins, patches = plt.hist(df['erro_relativo'], bins=30, edgecolor='black', density=True, alpha=0.6, color='skyblue')
 
@@ -39,7 +38,20 @@ plt.title(title)
 plt.xlabel('Erro Relativo')
 plt.ylabel('Densidade de Probabilidade')
 
-# Exibe o gráfico
+# Exibe o histograma
+plt.show()
+
+# Gráfico 2: Boxplot do erro relativo
+plt.figure(figsize=(8, 6))
+plt.boxplot(df['erro_relativo'], patch_artist=True, 
+            boxprops=dict(facecolor='skyblue', color='black'),
+            whiskerprops=dict(color='black'),
+            capprops=dict(color='black'),
+            medianprops=dict(color='red'))
+plt.title('Boxplot do Erro Relativo - LSTM')
+plt.ylabel('Erro Relativo')
+
+# Exibe o boxplot
 plt.show()
 
 # Imprime estatísticas básicas do erro relativo
@@ -47,7 +59,3 @@ print(f"Média do erro relativo: {media_erro_relativo}")
 print(f"Mediana do erro relativo: {df['erro_relativo'].median()}")
 print(f"Desvio padrão do erro relativo: {desvio_padrao_erro_relativo}")
 print(df['erro_relativo'].describe())
- 
-
-
-
