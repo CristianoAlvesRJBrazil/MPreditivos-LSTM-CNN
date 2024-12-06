@@ -2,14 +2,14 @@ import pandas as pd
 import numpy as np
 
 # Carregar os dados do arquivo CSV
-df_loss = pd.read_csv("bitcoin_predictions_lstm.csv")
+df_loss = pd.read_csv("bitcoin_predictions_lstm_cnn.csv")
 
 # Garantir que as colunas 'Real' e 'Previsto' existam e não contenham valores nulos
-if 'Real' in df_loss.columns and 'Previsto' in df_loss.columns:
+if 'Real_Close' in df_loss.columns and 'Predicted_Close' in df_loss.columns:
     # Calcular a métrica 'Best Loss'
-    df_loss['Best Loss'] = abs(df_loss['Real'] - df_loss['Previsto']) / abs(df_loss['Real'])
+    df_loss['Best Loss'] = abs(df_loss['Real_Close'] - df_loss['Predicted_Close']) / abs(df_loss['Real_Close'])
 else:
-    raise ValueError("As colunas 'Real' e 'Previsto' são obrigatórias no arquivo CSV.")
+    raise ValueError("As colunas 'Real_Close' e 'Predicted_Close' são obrigatórias no arquivo CSV.")
 
 # Calcular as estatísticas descritivas
 mean_loss = df_loss["Best Loss"].mean()  # Média
@@ -31,7 +31,7 @@ data = {
 df_stats = pd.DataFrame(data)
 
 # Salvar as estatísticas descritivas em um arquivo CSV
-output_file = "Estatistica_lstm_teste.csv"
+output_file = "Estatistica_cnn_lstm_teste.csv"
 df_stats.to_csv(output_file, index=False)
 print(f"As estatísticas descritivas foram salvas em: {output_file}")
 
@@ -40,5 +40,3 @@ print(f"Mode: {mode_loss}, Frequency: {mode_count}")
 
 # Exibir o DataFrame com as estatísticas
 df_stats
-
-

@@ -8,6 +8,7 @@ from keras.models import Sequential
 from keras.layers import LSTM, Dense, Dropout, Bidirectional
 from keras.callbacks import EarlyStopping
 
+
 # Classe para previsão de preços do Bitcoin
 class BitcoinPredictor:
     def __init__(self, ticker='BTC-USD', start='2020-01-01', end='2024-11-01', time_step=5, prediction_steps=1, train_ratio=0.8):
@@ -183,4 +184,6 @@ if __name__ == "__main__":
         
         # Plota os resultados
         btc_predictor.plot_results(df, predictions, predicted_price)
+
+
 

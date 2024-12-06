@@ -34,7 +34,7 @@ p = norm.pdf(x, media_erro_relativo, desvio_padrao_erro_relativo)
 
 # Plota a curva normal
 plt.plot(x, p, 'r', linewidth=2)
-title = f'Histograma e Curva Normal do Erro Relativo\nMédia: {media_erro_relativo:.4f}, Desvio Padrão: {desvio_padrao_erro_relativo:.4f}'
+title = f'Histograma e Curva Normal do Erro Relativo - CNN_LSTM\nMédia: {media_erro_relativo:.4f}, Desvio Padrão: {desvio_padrao_erro_relativo:.4f}'
 plt.title(title)
 plt.xlabel('Erro Relativo')
 plt.ylabel('Densidade de Probabilidade')
@@ -47,5 +47,25 @@ print(f"Média do erro relativo: {media_erro_relativo}")
 print(f"Mediana do erro relativo: {df['erro_relativo'].median()}")
 print(f"Desvio padrão do erro relativo: {desvio_padrao_erro_relativo}")
 print(df['erro_relativo'].describe())
+
+# Gráfico 2: Boxplot do erro relativo
+plt.figure(figsize=(8, 6))
+plt.boxplot(df['erro_relativo'], patch_artist=True, 
+            boxprops=dict(facecolor='skyblue', color='black'),
+            whiskerprops=dict(color='black'),
+            capprops=dict(color='black'),
+            medianprops=dict(color='red'))
+plt.title('Boxplot do Erro Relativo - CNN_LSTM')
+plt.ylabel('Erro Relativo')
+
+# Exibe o boxplot
+plt.show()
+
+# Imprime estatísticas básicas do erro relativo
+print(f"Média do erro relativo: {media_erro_relativo}")
+print(f"Mediana do erro relativo: {df['erro_relativo'].median()}")
+print(f"Desvio padrão do erro relativo: {desvio_padrao_erro_relativo}")
+print(df['erro_relativo'].describe())
+
  
  

@@ -13,18 +13,18 @@ df = pd.read_csv(arquivo_csv)
 print(df.head(10))
 
 # Calcula o erro relativo para cada linha
-df['erro_relativo'] = abs(df['Real'] - df['Previsto']) / abs(df['Real'])
+df['Erro_relativo'] = abs(df['Real'] - df['Previsto']) / abs(df['Real'])
 
 # Exibe o resultado
-print(df[['erro_relativo']])
+print(df[['Erro_relativo']])
 
 # Gráfico 1: Histograma com curva normal
 plt.figure(figsize=(10, 6))
-n, bins, patches = plt.hist(df['erro_relativo'], bins=30, edgecolor='black', density=True, alpha=0.6, color='skyblue')
+n, bins, patches = plt.hist(df['Erro_relativo'], bins=30, edgecolor='black', density=True, alpha=0.6, color='skyblue')
 
 # Calcula estatísticas do erro relativo
-media_erro_relativo = df['erro_relativo'].mean()
-desvio_padrao_erro_relativo = df['erro_relativo'].std()
+media_erro_relativo = df['Erro_relativo'].mean()
+desvio_padrao_erro_relativo = df['Erro_relativo'].std()
 
 # Gera os valores para a curva normal
 xmin, xmax = plt.xlim()
@@ -43,7 +43,7 @@ plt.show()
 
 # Gráfico 2: Boxplot do erro relativo
 plt.figure(figsize=(8, 6))
-plt.boxplot(df['erro_relativo'], patch_artist=True, 
+plt.boxplot(df['Erro_relativo'], patch_artist=True, 
             boxprops=dict(facecolor='skyblue', color='black'),
             whiskerprops=dict(color='black'),
             capprops=dict(color='black'),
@@ -55,7 +55,7 @@ plt.ylabel('Erro Relativo')
 plt.show()
 
 # Imprime estatísticas básicas do erro relativo
-print(f"Média do erro relativo: {media_erro_relativo}")
-print(f"Mediana do erro relativo: {df['erro_relativo'].median()}")
-print(f"Desvio padrão do erro relativo: {desvio_padrao_erro_relativo}")
-print(df['erro_relativo'].describe())
+print(f"Média do Erro relativo: {media_erro_relativo}")
+print(f"Mediana do Erro relativo: {df['Erro_relativo'].median()}")
+print(f"Desvio padrão do Erro relativo: {desvio_padrao_erro_relativo}")
+print(df['Erro_relativo'].describe())
